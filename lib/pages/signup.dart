@@ -192,6 +192,7 @@ class _SigninPageState extends State<Signup> {
                           ],
                         ),
                       ),
+                      
                       SizedBox(height: 20),
                       Row(
                         children: [
