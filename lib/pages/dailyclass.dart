@@ -8,6 +8,7 @@ import 'package:app/utils/deleteConfirmationDialog.dart';
 import 'package:flutter/material.dart';
 import '../utils/showNotification.dart';
 
+
 class DailyclassPage extends StatefulWidget {
   final int classId;
   const DailyclassPage({Key? key, required this.classId}) : super(key: key);
