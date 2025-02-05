@@ -27,7 +27,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _getWeather(String city) async {
-    final apiKey = '8892487e917244de92f100837243110'; // Ganti dengan API key Anda
+    final apiKey = '8892487e917244de92f100837243110'; // API key
     final url =
         'http://api.weatherapi.com/v1/current.json?key=$apiKey&q=$city';
 
