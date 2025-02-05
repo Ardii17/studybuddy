@@ -4,6 +4,7 @@ import 'package:app/object/dailyclass.dart';
 import 'package:app/pages/dailyclass.dart';
 import 'package:flutter/material.dart';
 
+
 class ClassPage extends StatefulWidget {
   static const nameRoute = '/classpage';
   _ClassPageState createState() => _ClassPageState();
