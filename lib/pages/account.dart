@@ -1,7 +1,10 @@
+import 'package:app/pages/signin.dart';
+import 'package:app/services/Authentication.dart';
 import 'package:flutter/material.dart';
 
 class AccountPage extends StatelessWidget {
   static const nameRoute = '/accountpage';
+  var _authService = AuthService();
 
   Widget build(BuildContext context) {
     return Stack(
@@ -168,7 +171,10 @@ class AccountPage extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () async {
+                        await _authService.logout();
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => SigninPage()));
+                      },
                       child: Row(
                         children: [
                           Icon(Icons.logout),

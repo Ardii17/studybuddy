@@ -1,226 +1,97 @@
-import 'package:app/pages/assignment.dart';
+import 'package:app/object/assignment.dart';
+import 'package:app/pages/form/task_upload_form.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class AllAssignmentPage extends StatelessWidget {
+class AllAssignmentPage extends StatefulWidget {
   static const nameRoute = '/assignmentpage';
+  @override
+  _TaskListPageState createState() => _TaskListPageState();
+}
+
+class _TaskListPageState extends State<AllAssignmentPage> {
+  List<Task> _tasks = [];
+
+  void _addTask() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TaskFormPage()),
+    );
+
+    if (result != null) {
+      setState(() {
+        _tasks.add(result);
+      });
+    }
+  }
+
+  void _editTask(Task task) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => TaskFormPage(task: task)),
+    );
+
+    if (result != null) {
+      setState(() {
+        final index = _tasks.indexWhere((t) => t.id == task.id);
+        _tasks[index] = result;
+      });
+    }
+  }
+
+  void _toggleTaskStatus(Task task) {
+    setState(() {
+      task.isCompleted = !task.isCompleted;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Assignment'),
-        backgroundColor: Colors.blueAccent,
-        titleTextStyle: TextStyle(
-            color: Colors.white,
-            fontSize: 20
-        ),
-        leading: IconButton(icon: Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
-        actions: [  
-          IconButton(onPressed: () {}, icon: Icon(Icons.add, color: Colors.white))
-        ],
-      ),
-      body: Container(
-        decoration: BoxDecoration(
+        title: Text('Daftar Tugas', style: TextStyle(
           color: Colors.white
-        ),
-        child: ListView(
-          padding: EdgeInsets.all(10),
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('Closest Deadline', style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500
-                    )),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(height: 10),
-            GestureDetector(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AssignmentPage())),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Color(0xfff4f4f5),
-                    borderRadius: BorderRadius.circular(10)
-                ),
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            children: [
-                              Icon(Icons.check_circle, color: Colors.red),
-                              SizedBox(width: 10),
-                              Text('Jaringan Saraf Tiruan', style: TextStyle(fontWeight: FontWeight.w500)),
-                            ],
-                          ),
-                        )),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.1,
-                          child: Align(
-                              alignment: Alignment.centerRight,
-                              child: PopupMenuButton(
-                                icon: Icon(Icons.more_horiz),
-                                onSelected: (String value) {
-                                  if (value == "delete") {
-                                    print('Delete Success');
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                                  PopupMenuItem<String>(
-                                    value: 'profile',
-                                    child: Text('Profile'),
-                                  ),
-                                ],
-                              )
-                          ),
-                        )
-                      ],
-                    ),
-                    Text('Mereview Jurnal', style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500
-                    )),
-                    Text('Mereview sebuah jurnal yang berkaitan dengan Jaringan Saraf Tiruan alias Neural Network lalu juga sertakan referensi jurnal yang dipakai', style: TextStyle(
-                        fontSize: 18
-                    ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              children: [
-                                Icon(Icons.access_time_outlined),
-                                SizedBox(width: 10),
-                                Text('Today, 23 : 00 WIB')
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                ),
+        )),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: Icon(
+          Icons.arrow_back_ios_new, color: Colors.white,
+        )),
+      ),
+      body: ListView.builder(
+        itemCount: _tasks.length,
+        itemBuilder: (context, index) {
+          final task = _tasks[index];
+          return ListTile(
+            title: Text(
+              task.title,
+              style: TextStyle(
+                  decoration: task.isCompleted
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none
               ),
             ),
-            SizedBox(height: 10),
-            Row(
+            subtitle: Text('Deadline: ${DateFormat('dd/MM/yyyy').format(task.deadline)}'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text('All Assignment', style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500
-                    )),
-                  ),
+                Checkbox(
+                  value: task.isCompleted,
+                  onChanged: (_) => _toggleTaskStatus(task),
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () => _editTask(task),
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            ListView.separated(
-              separatorBuilder: (context, index) {
-                return Divider(
-                  height: 10,
-                  color: Colors.white,
-                );
-              },
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Color(0xfff4f4f5),
-                        borderRadius: BorderRadius.circular(10)
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.check_circle, color: Colors.red),
-                                  SizedBox(width: 10),
-                                  Text('Jaringan Saraf Tiruan', style: TextStyle(fontWeight: FontWeight.w500)),
-                                ],
-                              ),
-                            )),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.1,
-                              child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: PopupMenuButton(
-                                    icon: Icon(Icons.more_horiz),
-                                    onSelected: (String value) {
-                                      if (value == "delete") {
-                                        print('Delete Success');
-                                      }
-                                    },
-                                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                                      PopupMenuItem<String>(
-                                        value: 'profile',
-                                        child: Text('Profile'),
-                                      ),
-                                    ],
-                                  )
-                              ),
-                            )
-                          ],
-                        ),
-                        Text('Mereview Jurnal', style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500
-                        )),
-                        Text('Mereview sebuah jurnal yang berkaitan dengan Jaringan Saraf Tiruan alias Neural Network', style: TextStyle(
-                          fontSize: 18,
-                        ),
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.access_time_outlined),
-                                    SizedBox(width: 10),
-                                    Text('Today, 23 : 00 WIB')
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addTask,
+        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.blueAccent,
       ),
     );
   }

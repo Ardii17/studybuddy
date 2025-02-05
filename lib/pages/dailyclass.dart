@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'package:app/pages/form/class.dart';
 import 'package:app/pages/the_class.dart';
-import '../lib/class_sevices.dart';
+import 'package:app/lib/class_sevices.dart';
 import 'package:app/object/class.dart';
 import 'package:app/object/dailyclass.dart';
+import 'package:app/utils/deleteConfirmationDialog.dart';
 import 'package:flutter/material.dart';
 import '../utils/showNotification.dart';
 
@@ -14,16 +15,17 @@ class DailyclassPage extends StatefulWidget {
 }
 
 class _DailyclassPageState extends State<DailyclassPage> {
-  List<Dailyclass> _dailyClass = [
-    Dailyclass(day: 'Senin', classCount: 3),
-    Dailyclass(day: 'Selasa', classCount: 1),
-    Dailyclass(day: 'Rabu', classCount: 1),
-    Dailyclass(day: 'Kamis', classCount: 2),
-    Dailyclass(day: 'Jumat', classCount: 0),
-    Dailyclass(day: 'Sabtu', classCount: 3),
-    Dailyclass(day: 'Minggu', classCount: 0),
+  late List<Dailyclass> _dailyClass = [
+    Dailyclass(day: 'Monday', query: 'Senin', classCount: 3),
+    Dailyclass(day: 'Tuesday', query: 'Selasa', classCount: 1),
+    Dailyclass(day: 'Wednesday', query: 'Rabu', classCount: 1),
+    Dailyclass(day: 'Thursday', query: 'Kamis', classCount: 2),
+    Dailyclass(day: 'Friday', query: 'Jumat', classCount: 0),
+    Dailyclass(day: 'Saturday', query: 'Sabtu', classCount: 3),
+    Dailyclass(day: 'Sunday', query: 'Minggu', classCount: 0),
   ];
   List<Class> allClass = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -37,14 +39,19 @@ class _DailyclassPageState extends State<DailyclassPage> {
   }
 
   Future<void> fetchData() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
-      var data = await ClassService.getClassesByDay(_dailyClass[widget.classId].day);
+      var data = await ClassService.getClassesByDay(_dailyClass[widget.classId].query!);
       setState(() {
         allClass = data;
+        isLoading = false;
       });
     } catch (e) {
       setState(() {
         allClass = [];
+        isLoading = false;
       });
     }
   }
@@ -102,113 +109,131 @@ class _DailyclassPageState extends State<DailyclassPage> {
           )
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _refreshData,
-        child: Container(
-          decoration: BoxDecoration(color: Colors.white),
-          child: ListView.separated(
-            padding: EdgeInsets.all(10),
-            separatorBuilder: (context, index) => Divider(
-              height: 10,
-              color: Colors.white,
-            ),
-            itemCount: allClass.length,
-            itemBuilder: (context, index) {
-              Class daily = allClass[index];
-
-              if (daily == null) return SizedBox.shrink();
-
-              return GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TheClass(existingClass: daily),
-                  ),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xfff4f4f5),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                daily.namaClass,
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.1,
-                            child: Align(
-                              alignment: Alignment.centerRight,
-                              child: PopupMenuButton(
-                                icon: Icon(Icons.more_horiz),
-                                onSelected: (String value) {
-                                  if (value == "delete") {
-                                    deleteData(daily.id!);
-                                  } else if (value == "edit") {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => ClassFormPage(existingClass: daily)));
-                                  }
-                                },
-                                itemBuilder: (BuildContext context) =>
-                                <PopupMenuEntry<String>>[
-                                  PopupMenuItem<String>(
-                                    value: 'delete',
-                                    child: Text('Delete'),
-                                  ),
-                                  PopupMenuItem<String>(
-                                    value: 'edit',
-                                    child: Text('Edit'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      Text(
-                        daily.teacher,
-                        style: TextStyle(fontSize: 18),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.access_time_outlined),
-                                  SizedBox(width: 10),
-                                  Text('${daily.hari}, ${daily.time} WIB')
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+      body: isLoading ? const Center(
+        child: CircularProgressIndicator(
+          color: Colors.blueAccent,
+          strokeWidth: 4,
         ),
-      )
+      ) : RefreshIndicator(child: Container(
+        decoration: const BoxDecoration(color: Colors.white),
+        child: allClass.length > 0 ? ListView.separated(
+          padding: const EdgeInsets.all(10),
+          separatorBuilder: (context, index) => Divider(
+            height: 10,
+            color: Colors.white,
+          ),
+          itemCount: allClass.length,
+          itemBuilder: (context, index) {
+            Class daily = allClass[index];
+
+            return GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TheClass(existingClass: daily),
+                ),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Color(0xfff4f4f5),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              daily.namaClass,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.1,
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: PopupMenuButton(
+                              icon: Icon(Icons.more_horiz),
+                              onSelected: (String value) {
+                                if (value == "delete") {
+                                  DeleteConfirmationDialog.show(
+                                    context: context,
+                                    title: 'Hapus Item',  // Opsional
+                                    content: 'Apakah Anda yakin ingin menghapus kelas ini?',  // Opsional
+                                    onDelete: () {
+                                      deleteData(daily.id!);
+                                      // Tampilkan snackbar sebagai feedback
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Item berhasil dihapus'),
+                                          backgroundColor: Colors.blueAccent,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else if (value == "edit") {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ClassFormPage(existingClass: daily)));
+                                }
+                              },
+                              itemBuilder: (BuildContext context) =>
+                              <PopupMenuEntry<String>>[
+                                PopupMenuItem<String>(
+                                  value: 'delete',
+                                  child: Text('Delete'),
+                                ),
+                                PopupMenuItem<String>(
+                                  value: 'edit',
+                                  child: Text('Edit'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    Text(
+                      daily.teacher,
+                      style: TextStyle(fontSize: 18),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Icon(Icons.access_time_outlined),
+                                SizedBox(width: 10),
+                                Text('${daily.hari}, ${daily.time} WIB')
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            );
+          },
+        ) : Center(
+          child: Text('Tidak ada kelas', style: TextStyle(
+            fontWeight: FontWeight.w600
+          )),
+        ),
+      ), onRefresh: _refreshData)
     );
   }
 }

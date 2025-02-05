@@ -89,7 +89,7 @@ class HomePageState extends State<HomePage> {
               ],
             ),
             SizedBox(height: 10),
-            Text('Hello, Good Morning Ardiansyah', style: TextStyle(color: Colors.white)),
+            Text('Hello, Selamat Datang Ardiansyah', style: TextStyle(color: Colors.white)),
             SizedBox(height: 10),
             Container(
               padding: EdgeInsets.all(10),

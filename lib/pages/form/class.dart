@@ -92,20 +92,21 @@ class _ClassFormPageState extends State<ClassFormPage> {
           : '00:00:00';
 
       // Determine if it's an add or edit operation
-      bool isEditing = widget.existingClass != null;
-      Class theClass = Class(id: widget.existingClass?.id, teacher: _teacherController.text.trim(), time: formattedTime, namaClass: _namaClassController.text.trim(), deskripsi: _deskripsiController.text.trim(), hari: _selectedDay!);
+      bool isEditing = widget.existingClass?.id != null;
+      Class insertClass = Class(teacher: _teacherController.text.trim(), time: formattedTime, namaClass: _namaClassController.text.trim(), deskripsi: _deskripsiController.text.trim(), hari: _selectedDay!);
+      Class updateClass = Class(id: widget.existingClass?.id, teacher: _teacherController.text.trim(), time: formattedTime, namaClass: _namaClassController.text.trim(), deskripsi: _deskripsiController.text.trim(), hari: _selectedDay!);
 
       try {
         if (isEditing) {
-          bool response = await ClassService.updateClass(theClass);
+          bool response = await ClassService.updateClass(updateClass);
           _showSuccessDialog();
           if (response) {
             ShowNotification.showTestNotification('Mengedit Kelas', 'Kelas berhasil diedit');
           }
         } else {
-          ClassService.createClass(theClass);
-          _showSuccessDialog();
+          await ClassService.createClass(insertClass);
           ShowNotification.showTestNotification('Menambahkan Kelas', 'Kelas berhasil dibuat');
+          _showSuccessDialog();
         }
 
       } catch (e) {

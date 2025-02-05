@@ -32,11 +32,11 @@ class Class {
 
   Map<String, dynamic> toJson() {
     return {
-      'nama_class': namaClass,
-      'deskripsi': deskripsi,
-      'hari': hari,
-      'teacher' : teacher,
-      'time' : time
+      "nama_class": namaClass,
+      "deskripsi": deskripsi,
+      "hari": hari,
+      "teacher" : teacher,
+      "time" : time
     };
   }
 }

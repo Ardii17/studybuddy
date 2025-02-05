@@ -4,6 +4,7 @@ import 'package:app/pages/all_assignment.dart';
 import 'package:app/pages/class.dart';
 import 'package:app/pages/dashboard.dart';
 import 'package:app/pages/material.dart';
+import 'package:app/pages/signin.dart';
 import 'package:app/services/NotificationService.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -84,6 +85,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   Widget build(BuildContext context) {
-    return _isLoggedIn ? AppshellPage() : AppshellPage();
+    return _isLoggedIn ? AppshellPage() : SigninPage(onLogin: _login);
+    // return _isLoggedIn ? SigninPage(onLogin: _login) : SigninPage(onLogin: _login);
   }
 }
