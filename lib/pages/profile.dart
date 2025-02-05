@@ -17,7 +17,7 @@ class _ProfilePageState extends State<ProfilePage> {
   File? _image;
   final _picker = ImagePicker();
 
-  // List of status options
+
   final List<String> _statusOptions = ['-', 'Mahasiswa', 'Siswa'];
 
   // Function to pick image from gallery
